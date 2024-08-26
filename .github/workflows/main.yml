@@ -37,10 +37,13 @@ jobs:
       - name: Build iOS app
         run: flutter build ipa --release --export-method=ad-hoc --no-codesign
 
-      - name: Archive iOS Build
+      - name: Create IPA from XCArchive
         run: |
-          cd build/ios/archive/
-          zip -r Runner.xcarchive.zip Runner.xcarchive
+          xcodebuild -exportArchive \
+          -archivePath build/ios/archive/Runner.xcarchive \
+          -exportPath build/ios/ipa \
+          -exportOptionsPlist ios/ExportOptions.plist \
+          -allowProvisioningUpdates
 
       - name: Upload artifacts to GitHub Releases
         uses: ncipollo/release-action@v1
@@ -48,6 +51,6 @@ jobs:
           artifacts: |
             build/app/outputs/apk/release/*,
             build/app/outputs/bundle/release/app-release.aab,
-            build/ios/archive/Runner.xcarchive.zip
+            build/ios/ipa/*.ipa
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.TOKEN }}
